@@ -130,21 +130,8 @@ src/
 │   ├── Events.js            # Modelo de Evento
 │   └── User.js               # Modelo de Usuário
 ├── routes/
-│   └── routes.js             # Definição das rotas
-└── views/
-    ├── index.html            # Interface web
-    ├── script.js             # JavaScript do front-end
-    └── style.css             # Estilos CSS
-server.js               # Ponto de entrada da aplicação
-```
+    └── routes.js             # Definição das rotas
 
-## Interface Web
-
-A aplicação inclui uma interface web simples em `http://localhost:3000` para testar a API diretamente no navegador.
-
-Funcionalidades:
-- Cadastro e login de usuários
-- Criação, listagem, edição e exclusão de eventos
 
 ## Scripts Disponíveis
 
