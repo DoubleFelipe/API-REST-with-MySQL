@@ -1,159 +1,147 @@
-# API de Eventos com Node.js e MongoDB
+# API Loja com Node.js e MySQL
 
-Uma API RESTful para gerenciamento de eventos, construída com Node.js, Express e MongoDB. Inclui autenticação JWT, CRUD completo de eventos e interface web simples.
+API REST refatorada para usar persistencia relacional MySQL com `mysql2/promise`, JWT e prepared statements.
 
-## Tecnologias Utilizadas
+## Tecnologias
 
-- **Node.js** - Runtime JavaScript
-- **Express.js** - Framework web
-- **MongoDB** - Banco de dados NoSQL
-- **Mongoose** - ODM para MongoDB
-- **JWT** - Autenticação baseada em tokens
-- **bcryptjs** - Hashing de senhas
-- **CORS** - Suporte a requisições cross-origin
-- **Nodemon** - Reinício automático do servidor em desenvolvimento
+- Node.js
+- Express
+- MySQL
+- mysql2 com Promises
+- JWT
+- Swagger
 
-## 📋 Pré-requisitos
+## Configuracao
 
-- Node.js (versão 14 ou superior)
-- MongoDB (Local ou Atlas)
-- npm 
+1. Instale as dependencias:
 
-## 🔧 Instalação e Configuração
+```bash
+npm install
+```
 
-1. **Instale as dependências:**
-   ```bash
-   npm install
-   ```
+2. Importe a base MySQL:
 
-2. **Configure as variáveis de ambiente:**
-   Crie um arquivo `.env` na raiz do projeto com:
-   ```env
-   PORT=3000
-   MONGO_URI=mongodb://localhost:27017/eventos
-   JWT_SECRET=sua_chave_secreta_aqui
-   ```
+```bash
+mysql -u root -p loja < database/loja.sql
+```
 
-3. **Inicie o MongoDB:**
-   Certifique-se de que o MongoDB está rodando localmente ou configure a URI para o Atlas.
+3. Configure o `.env`:
 
-4. **Execute o servidor:**
-   ```bash
-   npm run dev
-   ```
+```env
+PORT=3000
+API_VERSION=2.0.0
+JWT_SECRET=segredo
 
-O servidor estará disponível em `http://localhost:3000`.
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=sua_senha
+DB_NAME=loja
+DB_CONNECTION_LIMIT=10
+```
 
-## Uso da API
+4. Execute a API:
 
-### Autenticação
+```bash
+npm start
+```
 
-#### Registrar usuário
+## Rotas principais
+
+### Status publico
+
 ```http
-POST /register
-Content-Type: application/json
+GET /api/status
+```
 
+Resposta esperada:
+
+```json
 {
-  "name": "João Silva",
-  "email": "joao@example.com",
-  "password": "senha123"
+  "versao": "2.0.0",
+  "status": "online"
 }
 ```
 
-#### Fazer login
+### Login
+
 ```http
 POST /login
 Content-Type: application/json
 
 {
-  "email": "joao@example.com",
-  "password": "senha123"
+  "nick": "candido",
+  "senha": "senha_do_usuario"
 }
 ```
 
 Resposta:
+
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "token": "...",
+  "usuario": {
+    "id_usuario": 1,
+    "nome": "Candido de Moura",
+    "nick": "candido"
+  }
 }
 ```
 
-### Eventos (requer autenticação)
+### Rotas privadas
 
-#### Listar eventos
+Todas as rotas privadas exigem:
+
+- `Authorization: Bearer <token>`
+- `x-user-id: <id_usuario_do_token>`
+
+Sem token a API retorna `401`. Com token, mas sem ID explicito do usuario, retorna `403`.
+
+CRUDs disponiveis:
+
 ```http
-GET /events
-Authorization: Bearer <token>
+GET    /api/categorias
+GET    /api/categorias/:id
+POST   /api/categorias
+PUT    /api/categorias/:id
+DELETE /api/categorias/:id
+
+GET    /api/produtos
+GET    /api/produtos/:id
+POST   /api/produtos
+PUT    /api/produtos/:id
+DELETE /api/produtos/:id
+
+GET    /api/clientes
+GET    /api/clientes/:id
+POST   /api/clientes
+PUT    /api/clientes/:id
+DELETE /api/clientes/:id
+
+GET    /api/pedidos
+GET    /api/pedidos/:id
+POST   /api/pedidos
+PUT    /api/pedidos/:id
+DELETE /api/pedidos/:id
 ```
 
-#### Criar evento
+Exemplo para criar categoria:
+
 ```http
-POST /events
+POST /api/categorias
 Authorization: Bearer <token>
+x-user-id: 1
 Content-Type: application/json
 
 {
-  "title": "Reunião de equipe",
-  "description": "Discussão sobre novos projetos"
+  "nome": "Perifericos"
 }
 ```
 
-#### Atualizar evento
+## Swagger
+
+A documentacao fica em:
+
 ```http
-PUT /events/:id
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "title": "Reunião semanal",
-  "description": "Atualização dos projetos em andamento"
-}
+GET /api-docs
 ```
-
-#### Deletar evento
-```http
-DELETE /events/:id
-Authorization: Bearer <token>
-```
-
-## Estrutura do Projeto
-
-```
-src/
-├── app.js              # Configuração principal do Express
-├── controllers/
-│   ├── authController.js    # Lógica de autenticação
-│   └── eventController.js   # Lógica de eventos
-├── middlewares/
-│   └── auth.js              # Middleware de autenticação JWT
-├── models/
-│   ├── Events.js            # Modelo de Evento
-│   └── User.js               # Modelo de Usuário
-├── routes/
-│   └── routes.js             # Definição das rotas
-└── views/
-    ├── index.html            # Interface web
-    ├── script.js             # JavaScript do front-end
-    └── style.css             # Estilos CSS
-server.js               # Ponto de entrada da aplicação
-```
-
-## Interface Web
-
-A aplicação inclui uma interface web simples em `http://localhost:3000` para testar a API diretamente no navegador.
-
-Funcionalidades:
-- Cadastro e login de usuários
-- Criação, listagem, edição e exclusão de eventos
-
-## Scripts Disponíveis
-
-- `npm start` - Inicia o servidor em produção
-- `npm run dev` - Inicia o servidor em modo desenvolvimento (com Nodemon)
-
-
-## Contato
-
-Felipe - [GitHub](https://github.com/DoubleFelipe)
-
-Link do projeto: [https://github.com/DoubleFelipe/-Desenvolvimento-de-API-REST-Escal-vel-com-Node.js-e-MongoDB1](https://github.com/DoubleFelipe/-Desenvolvimento-de-API-REST-Escal-vel-com-Node.js-e-MongoDB1)  
