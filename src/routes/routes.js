@@ -1,16 +1,21 @@
 const express = require('express');
+
+const authController = require('../controllers/authController');
+const apiRoutes = require('./apiRoutes');
+const categoriaRoutes = require('./categoriaRoutes');
+const produtosRoutes = require('./produtosRoutes');
+const clientesRoutes = require('./clientesRoutes');
+const pedidosRoutes = require('./pedidosRoutes');
+
 const router = express.Router();
 
-const auth = require('../controllers/authController');
-const event = require('../controllers/eventController');
-const authMiddleware = require('../middlewares/auth');
+router.post('/register', authController.register);
+router.post('/login', authController.login);
 
-router.post('/register', auth.register);
-router.post('/login', auth.login);
-
-router.post('/events', authMiddleware, event.create);
-router.get('/events', event.getAll);
-router.put('/events/:id', authMiddleware, event.update);
-router.delete('/events/:id', authMiddleware, event.delete);
+router.use('/api', apiRoutes);
+router.use('/api/categorias', categoriaRoutes);
+router.use('/api/produtos', produtosRoutes);
+router.use('/api/clientes', clientesRoutes);
+router.use('/api/pedidos', pedidosRoutes);
 
 module.exports = router;
