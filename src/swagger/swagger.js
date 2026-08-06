@@ -129,8 +129,8 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
-        description: 'Servidor local'
+        url: process.env.PUBLIC_URL || `http://localhost:${process.env.PORT || 3000}`,
+        description: process.env.PUBLIC_URL ? 'Servidor publicado' : 'Servidor local'
       }
     ],
     components: {

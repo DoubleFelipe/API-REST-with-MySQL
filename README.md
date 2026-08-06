@@ -11,7 +11,7 @@ API REST refatorada para usar persistencia relacional MySQL com `mysql2/promise`
 - JWT
 - Swagger
 
-## Configuracao
+## Configuracao local
 
 1. Instale as dependencias:
 
@@ -19,16 +19,25 @@ API REST refatorada para usar persistencia relacional MySQL com `mysql2/promise`
 npm install
 ```
 
-2. Importe a base MySQL:
+2. Crie o arquivo de ambiente:
+
+```bash
+cp .env.example .env
+```
+
+No Windows, copie `.env.example` para `.env` manualmente se o comando acima não estiver disponível.
+
+3. Importe a base MySQL:
 
 ```bash
 mysql -u root -p loja < database/loja.sql
 ```
 
-3. Configure o `.env`:
+4. Configure o `.env`:
 
 ```env
 PORT=3000
+HOST=0.0.0.0
 API_VERSION=2.0.0
 JWT_SECRET=segredo
 
@@ -37,14 +46,67 @@ DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=sua_senha
 DB_NAME=loja
-DB_CONNECTION_LIMIT=10
+DB_CONNECTION_LIMIT=5
+DB_CONNECT_TIMEOUT=10000
+DB_SSL=false
+DB_SSL_REJECT_UNAUTHORIZED=true
+DB_SSL_CA=
 ```
 
-4. Execute a API:
+5. Execute a API:
 
 ```bash
 npm start
 ```
+
+## Deploy com Aiven e Render
+
+O projeto já inclui `render.yaml` com o build, start e health check do Render.
+
+### 1. Criar e preparar o MySQL no Aiven
+
+1. Crie um serviço **Aiven for MySQL** e aguarde o estado `Running`.
+2. Crie o banco `loja` no console do Aiven ou use o banco padrão do serviço.
+3. Na página de conexão, copie o host, a porta, o usuário e a senha; baixe também o certificado CA.
+4. Importe o schema e os dados. O banco informado no final do comando precisa existir:
+
+```bash
+mysql --host=SEU_HOST \
+  --port=SUA_PORTA \
+  --user=SEU_USUARIO \
+  --password \
+  --ssl-ca=ca.pem \
+  loja < database/loja.sql
+```
+
+Se usar o banco padrão do Aiven, substitua `loja` por `defaultdb` no comando e em `DB_NAME`.
+
+### 2. Criar a aplicação no Render
+
+No Render, crie um Blueprint a partir deste repositório ou um **Web Service** com:
+
+- Build Command: `npm ci`
+- Start Command: `npm start`
+- Health Check Path: `/health`
+
+Configure as variáveis abaixo com os dados do Aiven:
+
+```env
+DB_HOST=...
+DB_PORT=...
+DB_USER=...
+DB_PASSWORD=...
+DB_NAME=loja
+DB_SSL=true
+DB_SSL_REJECT_UNAUTHORIZED=true
+DB_SSL_CA=<conteudo completo do certificado CA>
+JWT_SECRET=<segredo longo e aleatorio>
+PUBLIC_URL=https://seu-servico.onrender.com
+```
+
+Não defina `PORT` manualmente: o Render fornece essa variável. O servidor usa `0.0.0.0` e a porta recebida do ambiente. O certificado CA não deve ser commitado no repositório.
+
+Após o deploy, valide `https://seu-servico.onrender.com/health`, `/api/status` e `/api-docs`.
 
 ## Rotas principais
 

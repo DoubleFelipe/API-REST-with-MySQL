@@ -8,10 +8,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB conectado"))
-  .catch(err => console.log(err));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 const routes = require('./routes/routes');

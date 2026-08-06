@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: api-loja
+    runtime: node
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: '0.0.0.0'
+      - key: API_VERSION
+        value: '2.0.0'
+      - key: PUBLIC_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_CONNECTION_LIMIT
+        value: '5'
+      - key: DB_CONNECT_TIMEOUT
+        value: '10000'
+      - key: DB_SSL
+        value: 'true'
+      - key: DB_SSL_REJECT_UNAUTHORIZED
+        value: 'true'
+      - key: DB_SSL_CA
+        sync: false
